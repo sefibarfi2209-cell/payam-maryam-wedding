@@ -424,72 +424,6 @@
         }
 
 
-        .env-letter {
-
-            position: absolute;
-
-            left: 7%;
-            right: 7%;
-            top: 9%;
-            height: 82%;
-
-            border-radius: 6px;
-            overflow: hidden;
-
-            background: #111;
-
-            box-shadow: 0 8px 26px rgba(0,0,0,0.55);
-
-            opacity: 0;
-            transform: translateY(4%);
-
-            transition:
-                transform 1s cubic-bezier(.19,1,.22,1),
-                opacity 0.35s ease;
-
-            z-index: 2;
-        }
-
-        .env-letter img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-            opacity: 0.92;
-        }
-
-        .env-letter::after {
-
-            content: "";
-
-            position: absolute;
-            inset: 0;
-
-            background: linear-gradient(180deg, rgba(0,0,0,0) 45%, rgba(0,0,0,0.55));
-        }
-
-        .env-letter-heart {
-
-            position: absolute;
-
-            bottom: 10px;
-            left: 0;
-            right: 0;
-
-            text-align: center;
-
-            color: #e3c45f;
-            font-size: 22px;
-
-            z-index: 2;
-        }
-
-        .envelope.reveal .env-letter {
-            opacity: 1;
-            transform: translateY(-58%) scale(1.08);
-        }
-
-
         .env-pocket {
 
             position: absolute;
@@ -685,11 +619,6 @@
         <div class="envelope" id="envelope" onclick="openEnvelope()">
 
             <div class="env-back"></div>
-
-            <div class="env-letter">
-                <img src="cover.png" alt="">
-                <span class="env-letter-heart">♡</span>
-            </div>
 
             <div class="env-pocket env-pocket-left"></div>
             <div class="env-pocket env-pocket-right"></div>
@@ -952,17 +881,12 @@
         envelope.classList.add("open");
         envelopeScene.classList.add("opened");
 
-        // مرحله ۲: نامه از داخل پاکت کمی بیرون می‌زند
-        setTimeout(function() {
-            envelope.classList.add("reveal");
-        }, 500);
-
-        // مرحله ۳: کارت تصویر (۹:۱۶) از داخل پاکت بیرون می‌آید و بزرگ می‌شود
+        // مرحله ۲: کارت تصویر (۹:۱۶، با نسبت درست از همون لحظه‌ی اول) از داخل پاکت بیرون می‌آید و بزرگ می‌شود
         setTimeout(function() {
             revealCard.classList.add("show");
-        }, 900);
+        }, 550);
 
-        // مرحله ۴: صحنه محو می‌شود و ویدیو جای کارت را می‌گیرد
+        // مرحله ۳: صحنه محو می‌شود و ویدیو جای کارت را می‌گیرد
         setTimeout(function() {
 
             // ویدیو از لحظه‌ی کلیک (بی‌صدا) در پس‌زمینه در حال پخش بوده؛
@@ -977,12 +901,12 @@
             // مرورگر معمولاً اجازه پخش با صدا را می‌دهد
             tryUnmutedAutoplay();
 
-        }, 2100);
+        }, 1750);
 
-        // مرحله ۵: پاکت را کاملاً از صفحه حذف می‌کنیم
+        // مرحله ۴: پاکت را کاملاً از صفحه حذف می‌کنیم
         setTimeout(function() {
             introScreen.style.display = "none";
-        }, 2800);
+        }, 2450);
     }
 
 
