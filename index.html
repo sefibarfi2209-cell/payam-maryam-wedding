@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
+    <title>دعوتنامه عروسی</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            min-height: 100%;
+            background: #000;
+            color: #fff;
+            font-family: Tahoma, Arial, sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+        }
+
+        /* صفحه موبایل */
+        .page {
+            width: 100%;
+            max-width: 500px;
+            min-height: 100vh;
+            min-height: 100dvh;
+            background: #000;
+            text-align: center;
+            padding-bottom: max(35px, env(safe-area-inset-bottom));
+        }
+
+
+        /* ویدیو 9:16 */
+        .video-container {
+            position: relative;
+            width: 100%;
+            height: 0;
+            padding-top: 177.78%; /* نسبت 9:16 با روش padding، در همه‌ی مرورگرها کار می‌کند */
+            overflow: hidden;
+            background: #000;
+        }
+
+        video {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+
+            object-fit: cover;
+
+            border: none;
+            outline: none;
+        }
+
+
+        /* دکمه فعال‌سازی صدا */
+        .sound-toggle {
+
+            position: absolute;
+
+            bottom: 16px;
+            left: 16px;
+
+            width: 46px;
+            height: 46px;
+
+            border-radius: 50%;
+
+            border: 1px solid rgba(255,255,255,0.25);
+
+            background: rgba(0,0,0,0.55);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+
+            color: #fff;
+
+            font-size: 20px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            cursor: pointer;
+
+            transition: transform 0.2s ease, opacity 0.2s ease;
+
+            z-index: 5;
+        }
+
+        .sound-toggle:active {
+            transform: scale(0.9);
+        }
+
+
+        /* بخش پایین ویدیو */
+        .bottom-section {
+            padding: 25px 20px 10px;
+        }
+
+
+        /* دکمه اطلاعات */
+        .info-button {
+
+            width: 180px;
+            height: 52px;
+
+            border: 1px solid rgba(255,255,255,0.25);
+            border-radius: 50px;
+
+            background: linear-gradient(
+                135deg,
+                #b8860b,
+                #e7c766,
+                #b8860b
+            );
+
+            color: #fff;
+
+            font-size: 17px;
+            font-family: inherit;
+            font-weight: bold;
+
+            cursor: pointer;
+
+            box-shadow:
+                0 5px 25px rgba(212,175,55,0.3),
+                inset 0 1px 1px rgba(255,255,255,0.5);
+
+            transition: transform 0.2s ease;
+        }
+
+        .info-button:active {
+            transform: scale(0.94);
+        }
+
+
+        /* آیکون */
+        .info-icon {
+            margin-left: 7px;
+            font-size: 19px;
+        }
+
+
+        /* پس زمینه Overlay */
+        .overlay {
+
+            position: fixed;
+
+            inset: 0;
+
+            width: 100%;
+            height: 100%;
+
+            background: rgba(0,0,0,0.78);
+
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            padding: 20px;
+
+            opacity: 0;
+            visibility: hidden;
+
+            transition: opacity 0.3s ease;
+
+            z-index: 9999;
+        }
+
+
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+
+        /* کارت اطلاعات */
+        .info-card {
+
+            width: 100%;
+            max-width: 390px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    #242424,
+                    #0c0c0c
+                );
+
+            border: 1px solid rgba(212,175,55,0.55);
+
+            border-radius: 26px;
+
+            padding: 35px 22px 25px;
+
+            position: relative;
+
+            box-shadow:
+                0 20px 70px rgba(0,0,0,0.9),
+                0 0 35px rgba(212,175,55,0.12);
+
+            transform: translateY(30px) scale(0.94);
+
+            transition: transform 0.35s ease;
+        }
+
+
+        .overlay.active .info-card {
+            transform: translateY(0) scale(1);
+        }
+
+
+        /* دکمه بستن */
+        .close-button {
+
+            position: absolute;
+
+            top: 12px;
+            left: 12px;
+
+            width: 36px;
+            height: 36px;
+
+            border-radius: 50%;
+
+            border: 1px solid rgba(255,255,255,0.15);
+
+            background: rgba(255,255,255,0.08);
+
+            color: white;
+
+            font-size: 23px;
+            line-height: 30px;
+
+            cursor: pointer;
+        }
+
+
+        /* عنوان */
+        .card-title {
+
+            margin: 5px 0 25px;
+
+            color: #e3c45f;
+
+            font-size: 25px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+
+        /* آیتم اطلاعات */
+        .info-item {
+
+            padding: 15px 5px;
+            text-align: center;
+
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+
+        .info-label {
+
+            display: block;
+
+            color: #999;
+
+            font-size: 13px;
+
+            margin-bottom: 6px;
+        }
+
+
+        .info-value {
+
+            display: block;
+
+            color: #fff;
+
+            font-size: 17px;
+
+            line-height: 1.9;
+        }
+
+
+        .gold {
+            color: #e3c45f;
+        }
+
+
+        /* برای گوشی‌های خیلی کوچک */
+        @media (max-width: 360px) {
+
+            .bottom-section {
+                padding-top: 20px;
+            }
+
+            .info-button {
+                width: 165px;
+                height: 48px;
+                font-size: 16px;
+            }
+
+            .info-card {
+                padding: 30px 18px 20px;
+                text-align: center;
+            }
+
+            .card-title {
+                font-size: 22px;
+                text-align: center;
+            }
+
+            .info-value {
+                font-size: 15px;
+            }
+        }
+
+
+        /* ====================== */
+        /* صحنه‌ی افتتاحیه: پاکت‌نامه */
+        /* ====================== */
+
+        #introScreen {
+
+            position: fixed;
+            inset: 0;
+
+            width: 100%;
+            height: 100%;
+            height: 100dvh;
+
+            background: radial-gradient(circle at 50% 30%, #161616, #000 70%);
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+
+            gap: 26px;
+
+            z-index: 50;
+
+            transition: opacity 0.6s ease;
+        }
+
+        #introScreen.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+
+        .envelope-scene {
+
+            perspective: 1200px;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+
+            gap: 24px;
+
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .envelope-scene.fade-out {
+            opacity: 0;
+            transform: scale(1.05);
+        }
+
+
+        .envelope {
+
+            position: relative;
+
+            width: 74vw;
+            max-width: 290px;
+
+            height: 0;
+            padding-top: 66.66%; /* نسبت 3:2، با روش padding به‌جای aspect-ratio */
+
+            cursor: pointer;
+
+            transform-style: preserve-3d;
+        }
+
+
+        .env-back {
+
+            position: absolute;
+            inset: 0;
+
+            border-radius: 10px;
+
+            background: linear-gradient(150deg, #262626, #0a0a0a);
+
+            border: 1px solid rgba(212,175,55,0.45);
+
+            box-shadow:
+                0 25px 60px rgba(0,0,0,0.65),
+                inset 0 1px 1px rgba(255,255,255,0.05);
+        }
+
+
+        .env-letter {
+
+            position: absolute;
+
+            left: 7%;
+            right: 7%;
+            top: 9%;
+            height: 82%;
+
+            border-radius: 6px;
+            overflow: hidden;
+
+            background: #111;
+
+            box-shadow: 0 8px 26px rgba(0,0,0,0.55);
+
+            opacity: 0;
+            transform: translateY(4%);
+
+            transition:
+                transform 1s cubic-bezier(.19,1,.22,1),
+                opacity 0.35s ease;
+
+            z-index: 2;
+        }
+
+        .env-letter img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            opacity: 0.92;
+        }
+
+        .env-letter::after {
+
+            content: "";
+
+            position: absolute;
+            inset: 0;
+
+            background: linear-gradient(180deg, rgba(0,0,0,0) 45%, rgba(0,0,0,0.55));
+        }
+
+        .env-letter-heart {
+
+            position: absolute;
+
+            bottom: 10px;
+            left: 0;
+            right: 0;
+
+            text-align: center;
+
+            color: #e3c45f;
+            font-size: 22px;
+
+            z-index: 2;
+        }
+
+        .envelope.reveal .env-letter {
+            opacity: 1;
+            transform: translateY(-58%) scale(1.08);
+        }
+
+
+        .env-pocket {
+
+            position: absolute;
+
+            bottom: 0;
+            left: 0;
+
+            width: 100%;
+            height: 60%;
+
+            z-index: 3;
+
+            pointer-events: none;
+        }
+
+        .env-pocket-left {
+
+            clip-path: polygon(0 100%, 0 0, 50% 55%);
+
+            background: linear-gradient(135deg, #2e2e2e, #111);
+
+            border-radius: 0 0 0 10px;
+        }
+
+        .env-pocket-right {
+
+            clip-path: polygon(100% 100%, 100% 0, 50% 55%);
+
+            background: linear-gradient(225deg, #2e2e2e, #111);
+
+            border-radius: 0 0 10px 0;
+        }
+
+
+        .env-flap {
+
+            position: absolute;
+
+            top: 0;
+            left: 0;
+
+            width: 100%;
+            height: 58%;
+
+            clip-path: polygon(0 0, 100% 0, 50% 100%);
+
+            background: linear-gradient(160deg, #c9a227, #e7c766 45%, #b8860b);
+
+            transform-origin: top center;
+            transform: rotateX(0deg);
+
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+
+            transition: transform 0.9s cubic-bezier(.45,.05,.55,.95);
+
+            z-index: 4;
+
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+        }
+
+        .envelope.open .env-flap {
+            transform: rotateX(-180deg);
+        }
+
+
+        .env-seal {
+
+            position: absolute;
+
+            top: 52%;
+            left: 50%;
+
+            transform: translate(-50%, -50%);
+
+            width: 44px;
+            height: 44px;
+
+            border-radius: 50%;
+
+            background: radial-gradient(circle at 35% 30%, #f0d47a, #b8860b 70%);
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            color: #3a2a00;
+            font-size: 20px;
+
+            z-index: 5;
+
+            box-shadow: 0 3px 10px rgba(0,0,0,0.5);
+
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+
+        .envelope.open .env-seal {
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.4);
+        }
+
+
+        .envelope-hint {
+
+            color: rgba(255,255,255,0.65);
+
+            font-size: 14px;
+            letter-spacing: 0.3px;
+
+            animation: pulseHint 1.8s ease-in-out infinite;
+        }
+
+        .envelope-scene.opened .envelope-hint {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            animation: none;
+        }
+
+        @keyframes pulseHint {
+            0%, 100% { opacity: 0.45; }
+            50% { opacity: 1; }
+        }
+
+
+        /* کارتی که از پاکت بیرون می‌آید و بزرگ می‌شود (تصویر ۹:۱۶) */
+        /* اندازه‌ی دقیقش با جاوااسکریپت محاسبه و به‌صورت inline ست می‌شود */
+        .reveal-card {
+
+            position: fixed;
+
+            left: 50%;
+            top: 50%;
+
+            width: 250px;
+            height: 444px;
+
+            border-radius: 16px;
+            overflow: hidden;
+
+            box-shadow:
+                0 30px 80px rgba(0,0,0,0.75),
+                0 0 0 1px rgba(212,175,55,0.35);
+
+            opacity: 0;
+
+            transform: translate(-50%, -50%) scale(0.18);
+
+            transition:
+                transform 1s cubic-bezier(.19,1,.22,1),
+                opacity 0.5s ease;
+
+            z-index: 45;
+
+            pointer-events: none;
+        }
+
+        .reveal-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .reveal-card.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+
+        /* محتوای اصلی: در ابتدا پنهانه تا پاکت باز بشه */
+        #mainContent {
+            opacity: 0;
+            transition: opacity 0.7s ease;
+        }
+
+        #mainContent.visible {
+            opacity: 1;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- صحنه‌ی افتتاحیه: پاکت‌نامه -->
+<div id="introScreen">
+
+    <div class="envelope-scene" id="envelopeScene">
+
+        <div class="envelope" id="envelope" onclick="openEnvelope()">
+
+            <div class="env-back"></div>
+
+            <div class="env-letter">
+                <img src="cover.png" alt="">
+                <span class="env-letter-heart">♡</span>
+            </div>
+
+            <div class="env-pocket env-pocket-left"></div>
+            <div class="env-pocket env-pocket-right"></div>
+
+            <div class="env-flap"></div>
+
+            <div class="env-seal">♡</div>
+
+        </div>
+
+        <p class="envelope-hint">برای باز کردن دعوتنامه لمس کنید</p>
+
+    </div>
+
+    <!-- کارتی که از پاکت بیرون می‌آید و کل صفحه را می‌گیرد -->
+    <div class="reveal-card" id="revealCard">
+        <img src="cover.png" alt="">
+    </div>
+
+</div>
+
+
+<div class="page" id="mainContent">
+
+
+    <!-- ویدیو -->
+    <div class="video-container">
+
+        <video
+           id="mainVideo"
+           muted
+           loop
+           playsinline
+           controls
+           preload="auto"
+           poster="cover.png">
+
+            <source src="wedding.mp4" type="video/mp4">
+
+            مرورگر شما از پخش ویدیو پشتیبانی نمی‌کند.
+
+        </video>
+
+        <!-- دکمه فعال‌سازی صدا -->
+        <button
+            class="sound-toggle"
+            id="soundToggle"
+            onclick="toggleSound()"
+            aria-label="فعال‌سازی صدا">
+
+            🔇
+
+        </button>
+
+    </div>
+
+
+    <!-- دکمه -->
+    <div class="bottom-section">
+
+        <button
+            class="info-button"
+            onclick="openInfo()">
+
+            <span class="info-icon">♡</span>
+
+            اطلاعات
+
+        </button>
+
+    </div>
+
+
+</div>
+<!-- پایان mainContent -->
+
+
+
+<!-- پنجره اطلاعات -->
+
+<div
+    class="overlay"
+    id="infoOverlay"
+    onclick="closeOutside(event)">
+
+
+    <div class="info-card">
+
+
+        <!-- بستن -->
+        <button
+            class="close-button"
+            onclick="closeInfo()">
+
+            ×
+
+        </button>
+
+
+        <!-- عنوان -->
+        <div class="card-title">
+
+            اطلاعات مراسم
+
+        </div>
+
+
+        <!-- تاریخ -->
+        <div class="info-item">
+
+            <span class="info-label">
+                تاریخ
+            </span>
+
+            <span class="info-value gold">
+                پنجشنبه ۹ مهر ۱۴۰۵
+            </span>
+
+        </div>
+
+
+        <!-- ساعت -->
+        <div class="info-item">
+
+            <span class="info-label">
+                ساعت
+            </span>
+
+            <span class="info-value">
+                ۱۹ تا پاسی از شب
+            </span>
+
+        </div>
+
+
+        <!-- مکان -->
+        <div class="info-item">
+
+            <span class="info-label">
+                مکان مراسم
+            </span>
+
+            <span class="info-value">
+
+                شهریار، باغستان، وحید ۳
+
+                <br>
+
+                باغ عمارت ارغوان
+
+            </span>
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+
+<script>
+
+    const video = document.getElementById("mainVideo");
+    const soundToggle = document.getElementById("soundToggle");
+    const revealCardEl = document.getElementById("revealCard");
+
+
+    /* ====================================== */
+    /* سایزبندی دستی کارت ۹:۱۶ (سازگار با همه‌ی مرورگرها) */
+    /* ====================================== */
+
+    function sizeRevealCard() {
+
+        const maxHeight = window.innerHeight * 0.76;
+        const maxWidthAsHeight = (window.innerWidth * 0.86) * (16 / 9);
+
+        const cardHeight = Math.min(maxHeight, maxWidthAsHeight);
+        const cardWidth = cardHeight * (9 / 16);
+
+        revealCardEl.style.height = cardHeight + "px";
+        revealCardEl.style.width = cardWidth + "px";
+    }
+
+    sizeRevealCard();
+    window.addEventListener("resize", sizeRevealCard);
+
+
+    // تلاش می‌کنیم با صدا پخش کنیم
+    // (اگر مرورگر اجازه نداد، به حالت بی‌صدا برمی‌گردیم)
+    function tryUnmutedAutoplay() {
+
+        // اگر ویدیو از قبل (بی‌صدا) در حال پخشه، فقط صدا رو باز می‌کنیم؛
+        // این کار نیازی به فراخوانی دوباره‌ی play() نداره و در سامسونگ اینترنت هم مطمئن‌تره
+        if (!video.paused) {
+
+            video.muted = false;
+            soundToggle.style.display = "none";
+
+            // چک کوتاه: اگر مرورگر با باز شدن صدا ویدیو رو مکث کرد، برمی‌گردیم به بی‌صدا
+            setTimeout(function() {
+                if (video.paused) {
+                    video.muted = true;
+                    video.play().catch(function() {});
+                    soundToggle.style.display = "flex";
+                    soundToggle.textContent = "🔇";
+                }
+            }, 250);
+
+            return;
+        }
+
+        video.muted = false;
+
+        const playPromise = video.play();
+
+        if (playPromise !== undefined) {
+
+            playPromise
+                .then(function() {
+                    // موفق شد: صدا فعاله
+                    soundToggle.style.display = "none";
+                })
+                .catch(function() {
+                    // مرورگر اجازه نداد: برمی‌گردیم به حالت بی‌صدا
+                    video.muted = true;
+                    video.play().catch(function() {});
+                    soundToggle.textContent = "🔇";
+                });
+        }
+    }
+
+
+    /* ====================== */
+    /* منطق باز شدن پاکت‌نامه */
+    /* ====================== */
+
+    const introScreen   = document.getElementById("introScreen");
+    const envelopeScene = document.getElementById("envelopeScene");
+    const envelope      = document.getElementById("envelope");
+    const revealCard    = document.getElementById("revealCard");
+    const mainContent   = document.getElementById("mainContent");
+
+    let envelopeOpened = false;
+
+    function openEnvelope() {
+
+        if (envelopeOpened) return;
+        envelopeOpened = true;
+
+        // همین لحظه‌ی کلیک (بی‌صدا) پخش رو شروع می‌کنیم؛
+        // این کار در همه‌ی مرورگرها از جمله سامسونگ اینترنت مجازه
+        video.muted = true;
+        const startPlay = video.play();
+        if (startPlay !== undefined) {
+            startPlay.catch(function() {});
+        }
+
+        // مرحله ۱: در پاکت باز می‌شود
+        envelope.classList.add("open");
+        envelopeScene.classList.add("opened");
+
+        // مرحله ۲: نامه از داخل پاکت کمی بیرون می‌زند
+        setTimeout(function() {
+            envelope.classList.add("reveal");
+        }, 500);
+
+        // مرحله ۳: کارت تصویر (۹:۱۶) از داخل پاکت بیرون می‌آید و بزرگ می‌شود
+        setTimeout(function() {
+            revealCard.classList.add("show");
+        }, 900);
+
+        // مرحله ۴: صحنه محو می‌شود و ویدیو جای کارت را می‌گیرد
+        setTimeout(function() {
+
+            // ویدیو از لحظه‌ی کلیک (بی‌صدا) در پس‌زمینه در حال پخش بوده؛
+            // قبل از نمایش، برش می‌گردونیم به لحظه‌ی صفر تا کاربر از اول ببینتش
+            video.currentTime = 0;
+
+            introScreen.classList.add("fade-out");
+
+            mainContent.classList.add("visible");
+
+            // چون این کار مستقیماً از تعامل کاربر (کلیک) نشأت می‌گیرد،
+            // مرورگر معمولاً اجازه پخش با صدا را می‌دهد
+            tryUnmutedAutoplay();
+
+        }, 2100);
+
+        // مرحله ۵: پاکت را کاملاً از صفحه حذف می‌کنیم
+        setTimeout(function() {
+            introScreen.style.display = "none";
+        }, 2800);
+    }
+
+
+    function toggleSound() {
+
+        if (video.muted) {
+
+            video.muted = false;
+            video.play();
+            soundToggle.textContent = "🔊";
+
+        } else {
+
+            video.muted = true;
+            soundToggle.textContent = "🔇";
+
+        }
+
+    }
+
+
+    function openInfo() {
+
+        document
+            .getElementById("infoOverlay")
+            .classList.add("active");
+
+        document.body.style.overflow = "hidden";
+
+    }
+
+
+    function closeInfo() {
+
+        document
+            .getElementById("infoOverlay")
+            .classList.remove("active");
+
+        document.body.style.overflow = "";
+
+    }
+
+
+    function closeOutside(event) {
+
+        if (event.target.id === "infoOverlay") {
+
+            closeInfo();
+
+        }
+
+    }
+
+
+    document.addEventListener(
+        "keydown",
+        function(event) {
+
+            if (event.key === "Escape") {
+
+                closeInfo();
+
+            }
+
+        }
+    );
+
+</script>
+
+
+</body>
+
+</html>
