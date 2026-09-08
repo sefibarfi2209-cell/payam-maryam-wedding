@@ -1,0 +1,845 @@
+/* ================================================================ */
+/* دعوتنامه عروسی — بهینه‌شده برای گوشی‌های ضعیف                     */
+/* اصل کلی: انیمیشن فقط با transform و opacity (GPU)                 */
+/* ================================================================ */
+
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100%;
+    background: #000;
+    color: #fff;
+    font-family: 'Vazirmatn', 'IRANSans', 'IRANYekan', Tahoma, Arial, sans-serif;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+}
+
+/* صفحه موبایل */
+.page {
+    width: 100%;
+    max-width: 500px;
+    min-height: 100vh;
+    min-height: 100dvh;
+    background: #000;
+    text-align: center;
+    padding-bottom: calc(84px + env(safe-area-inset-bottom));
+}
+
+
+/* ویدیو 9:16 */
+.video-container {
+    position: relative;
+    width: 100%;
+    height: 0;
+    padding-top: 177.78%;
+    overflow: hidden;
+    background: #000;
+}
+
+video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    border: none;
+    outline: none;
+}
+
+
+/* دکمه فعال‌سازی صدا — بدون backdrop-filter (سنگین است) */
+.sound-toggle {
+    position: absolute;
+    bottom: 16px;
+    left: 16px;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.25);
+    background: rgba(0,0,0,0.6);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    z-index: 5;
+}
+
+.sound-toggle:active {
+    transform: scale(0.9);
+}
+
+
+/* ============================================ */
+/* نوار کنترل: چسبیده به لبه پایین، تمام‌عرض    */
+/* ============================================ */
+.control-bar {
+
+    position: fixed;
+
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+
+    width: 100%;
+    max-width: 500px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+
+    padding: 10px 26px;
+    padding-bottom: calc(10px + env(safe-area-inset-bottom));
+
+    background: #fff;
+
+    border-radius: 0;
+
+    box-shadow: 0 -8px 26px rgba(0,0,0,0.45);
+
+    z-index: 55;
+
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+}
+
+.control-bar.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.control-btn {
+    width: 48px;
+    height: 48px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: #1a1a1a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.control-btn:active {
+    transform: scale(0.9);
+    background: rgba(0,0,0,0.06);
+}
+
+.control-btn.text-btn {
+    width: auto;
+    padding: 0 10px;
+    border-radius: 50px;
+    color: #b8860b;
+    font-size: 15px;
+    font-weight: bold;
+    letter-spacing: 0.3px;
+}
+
+
+/* حالت بزرگ‌نمایی تمام‌صفحه‌ی ویدیو */
+.video-container.expanded {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    padding-top: 0;
+    z-index: 60;
+    background: #000;
+}
+
+.video-container.expanded video {
+    object-fit: contain;
+}
+
+.expand-close-btn {
+    position: fixed;
+    top: max(16px, env(safe-area-inset-top));
+    left: 16px;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.25);
+    background: rgba(0,0,0,0.6);
+    color: #fff;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 61;
+}
+
+.expand-close-btn.show {
+    display: flex;
+}
+
+
+/* پس زمینه Overlay */
+.overlay {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.78);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease;
+    z-index: 9999;
+}
+
+.overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+
+/* کارت اطلاعات */
+.info-card {
+    width: 100%;
+    max-width: 390px;
+    background: linear-gradient(145deg, #242424, #0c0c0c);
+    border: 1px solid rgba(212,175,55,0.55);
+    border-radius: 26px;
+    padding: 35px 22px 25px;
+    position: relative;
+    box-shadow:
+        0 20px 70px rgba(0,0,0,0.9),
+        0 0 35px rgba(212,175,55,0.12);
+    transform: translateY(30px) scale(0.94);
+    transition: transform 0.35s ease;
+}
+
+.overlay.active .info-card {
+    transform: translateY(0) scale(1);
+}
+
+.close-button {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.08);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.card-title {
+    margin: 5px 0 25px;
+    color: #e3c45f;
+    font-size: 25px;
+    text-align: center;
+    font-weight: 800;
+}
+
+.info-item {
+    padding: 15px 5px;
+    text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.info-item:last-child {
+    border-bottom: none;
+}
+
+.info-label {
+    display: block;
+    color: #999;
+    font-size: 13px;
+    margin-bottom: 6px;
+}
+
+.info-value {
+    display: block;
+    color: #fff;
+    font-size: 17px;
+    line-height: 1.9;
+}
+
+.gold {
+    color: #e3c45f;
+}
+
+
+@media (max-width: 360px) {
+
+    .control-bar {
+        padding: 8px 14px;
+        padding-bottom: calc(8px + env(safe-area-inset-bottom));
+    }
+
+    .control-btn {
+        width: 42px;
+        height: 42px;
+    }
+
+    .control-btn.text-btn {
+        font-size: 13.5px;
+    }
+
+    .info-card {
+        padding: 30px 18px 20px;
+        text-align: center;
+    }
+
+    .card-title {
+        font-size: 22px;
+        text-align: center;
+    }
+
+    .info-value {
+        font-size: 15px;
+    }
+}
+
+
+/* ====================== */
+/* صحنه‌ی افتتاحیه: پاکت‌نامه */
+/* ====================== */
+
+#introScreen {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    height: 100dvh;
+    background: radial-gradient(circle at 50% 30%, #1d1812, #000 72%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 26px;
+    z-index: 50;
+    transition: opacity 0.6s ease;
+}
+
+#introScreen.fade-out {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.envelope-scene {
+    perspective: 1200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.envelope-scene.fade-out {
+    opacity: 0;
+    transform: scale(1.05);
+}
+
+/* پاکت: فونت پایه = عرض پاکت ÷ ۳۸ — همه‌ی عناصر داخل با em مقیاس می‌شوند */
+.envelope-flip-wrap {
+    position: relative;
+
+    width: 90vw;          /* 👈 عرض پاکت */
+    max-width: 380px;     /* 👈 سقف عرض */
+
+    height: 0;
+    padding-top: 75%;     /* نسبت 4:3 */
+
+    font-size: 10px;                /* فال‌بک مرورگرهای قدیمی */
+    font-size: min(2.37vw, 10px);   /* 90÷38=2.37 | سقف: 380÷38=10 */
+}
+
+.envelope-flip-inner {
+    position: absolute;
+    inset: 0;
+    transform-style: preserve-3d;
+    transform: rotateY(180deg);
+    transition: transform 1.1s cubic-bezier(.65,.05,.36,1);
+
+    will-change: transform;   /* 👈 لایه‌ی GPU: بافت‌ها یک‌بار رستر می‌شوند */
+}
+
+.envelope-flip-inner.flipped {
+    transform: rotateY(0deg);
+}
+
+.envelope-face {
+    position: absolute;
+    inset: 0;
+    border-radius: 10px;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    will-change: transform;
+}
+
+
+/* ============================================== */
+/* بافت مقوای کِرافت (بدون تصویر، با نویز SVG)    */
+/* ============================================== */
+.kraft {
+
+    background-color: #bfa17d;
+
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' seed='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.45'/%3E%3C/svg%3E"),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.012 0.16' numOctaves='4' seed='11' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='420' height='420' filter='url(%23f)' opacity='0.5'/%3E%3C/svg%3E");
+
+    background-blend-mode: multiply, soft-light;
+}
+
+
+/* روی پشت پاکت (نمای اول) */
+.envelope-face-back {
+    transform: rotateY(180deg);
+    border: 1px solid rgba(122,90,52,0.55);
+    box-shadow:
+        inset 0 0 44px rgba(92,64,34,0.35),
+        0 25px 60px rgba(0,0,0,0.65);
+}
+
+.envelope-face-front {
+    pointer-events: none;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.65);
+}
+
+.envelope-flip-inner.flipped .envelope-face-front {
+    pointer-events: auto;
+}
+
+.envelope {
+    position: absolute;
+    inset: 0;
+    cursor: pointer;
+}
+
+
+/* ==================================================== */
+/* نمای پشت پاکت: تمبر + مهر پستی + متن دعوت            */
+/* ==================================================== */
+
+.postage-stamp {
+
+    position: absolute;
+    top: 1.2em;
+    right: 1.6em;
+    width: 8.4em;
+
+    --hole: 0.4em;
+    --step: 1.1em;
+    --paper: #faf6ea;
+
+    padding: 0.6em;
+
+    background:
+        linear-gradient(var(--paper), var(--paper))
+            center / calc(100% - 2 * var(--hole)) calc(100% - 2 * var(--hole)) no-repeat,
+        radial-gradient(circle var(--hole) at 50% 0,    var(--paper) 98%, rgba(250,246,234,0) 100%)
+            top    / var(--step) var(--hole) repeat-x,
+        radial-gradient(circle var(--hole) at 50% 100%, var(--paper) 98%, rgba(250,246,234,0) 100%)
+            bottom / var(--step) var(--hole) repeat-x,
+        radial-gradient(circle var(--hole) at 0 50%,    var(--paper) 98%, rgba(250,246,234,0) 100%)
+            left   / var(--hole) var(--step) repeat-y,
+        radial-gradient(circle var(--hole) at 100% 50%, var(--paper) 98%, rgba(250,246,234,0) 100%)
+            right  / var(--hole) var(--step) repeat-y;
+
+    filter: drop-shadow(0 2px 4px rgba(60,40,15,0.35));
+
+    z-index: 2;
+}
+
+.stamp-art {
+    display: block;
+    width: 100%;
+    height: 5.6em;
+}
+
+.stamp-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    border-top: 1px solid #e6ddc4;
+    background: #fdfaf0;
+    padding: 0.3em 0.5em 0.2em;
+}
+
+.stamp-logo {
+    width: 1.6em;
+    height: 1.6em;
+    border-radius: 0.375em;
+    background: #f5b301;
+    color: #fff;
+    font-size: 0.8em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+}
+
+.stamp-names {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    line-height: 1.6;
+}
+
+.stamp-names b {
+    font-size: 0.8em;
+    color: #333;
+}
+
+.stamp-names i {
+    font-style: normal;
+    font-size: 0.65em;
+    color: #888;
+    direction: ltr;
+}
+
+.postmark {
+    position: absolute;
+    top: 0.8em;
+    right: 6.6em;
+    width: 11.8em;
+    height: auto;
+    opacity: 0.85;
+    z-index: 3;
+    pointer-events: none;
+}
+
+.env-invite-text {
+    position: absolute;
+    top: 50%;
+    left: 7%;
+    right: 7%;
+    transform: translateY(-50%);
+    text-align: center;
+    color: #fff;
+    font-size: 1.45em;
+    font-weight: 700;
+    line-height: 2;
+    text-shadow: 0 1px 3px rgba(70,45,20,0.55);
+    z-index: 2;
+}
+
+
+/* ==================================================== */
+/* لایه‌های روی پاکت (به ترتیب z):                       */
+/*   ۱. داخل تیره / ۲. فلپ باز / ۳. کارت                 */
+/*   ۴. بدنه‌ی پاکت / ۵. فلپ بسته / ۶. مهر موم           */
+/* ==================================================== */
+
+/* ۱) داخل تیره‌ی پاکت — مثلث دهانه */
+.env-interior {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 78%;
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+    background: linear-gradient(180deg, #332414, #4d3a24);
+    box-shadow: inset 0 0 3em rgba(0,0,0,0.5);
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* ۲) فلپ باز‌شده: نوک رو به بالا، سوار بر لبه‌ی بالایی پاکت */
+.flap-opened {
+
+    position: absolute;
+
+    bottom: 100%;
+    left: 0;
+    width: 100%;
+    height: 78%;
+
+    clip-path: polygon(50% 0, 100% 100%, 0 100%);
+
+    background-color: #9d7e5c;
+
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' seed='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.45'/%3E%3C/svg%3E"),
+        linear-gradient(180deg, #b3946f 0%, #96774f 100%);
+
+    background-blend-mode: multiply, normal;
+
+    box-shadow: inset 0 0 2.2em rgba(50,32,15,0.4);
+
+    transform: scaleY(0);
+    transform-origin: bottom center;
+
+    transition: transform 0.85s cubic-bezier(.3, 1.15, .4, 1) 0.15s;
+
+    will-change: transform;   /* 👈 GPU */
+
+    z-index: 2;
+    pointer-events: none;
+}
+
+.envelope.open .flap-opened {
+    transform: scaleY(1);
+}
+
+/* ۳) کارت داخل پاکت — انیمیشن فقط transform+opacity (GPU) */
+.pull-card {
+
+    position: absolute;
+
+    left: 50%;
+    top: 38.5%;           /* کاملاً داخل بدنه‌ی پاکت — از لبه پایین نمی‌زند بیرون */
+
+    width: 42%;           /* 👈 عرض کارت نسبت به پاکت */
+    height: 0;
+    padding-top: 74.67%;  /* نسبت 9:16 */
+
+    border-radius: 1.2em;
+    overflow: hidden;
+
+    box-shadow:
+        0 0.5em 1.6em rgba(0,0,0,0.5),
+        0 0 0 1px rgba(212,175,55,0.35);
+
+    opacity: 0;                                        /* پیش‌فرض مخفی */
+    transform: translate(-50%, -50%) rotate(90deg);   /* دراز کشیده داخل پاکت */
+
+    transition:
+        transform 1.15s cubic-bezier(.55, .06, .28, 1) 0.9s,
+        opacity 0.15s ease 0s;
+
+    will-change: transform, opacity;   /* 👈 GPU */
+
+    z-index: 3;
+    pointer-events: none;
+}
+
+.envelope.open .pull-card {
+    opacity: 1;
+    transform: translate(-50%, -150%) rotate(0deg);
+}
+
+.pull-card img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* ۴) بدنه‌ی پاکت: مقوا با بریدگی V */
+.env-pocket {
+
+    position: absolute;
+    inset: 0;
+
+    clip-path: polygon(0 0, 50% 78%, 100% 0, 100% 100%, 0 100%);
+
+    border-radius: 10px;
+    box-shadow: inset 0 0 44px rgba(92,64,34,0.35);
+
+    z-index: 4;
+    pointer-events: none;
+}
+
+.env-pocket svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+/* ۵) فلپ بسته */
+.flap-closed {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 78%;
+
+    filter: drop-shadow(0 3px 4px rgba(60,40,15,0.3));
+
+    transition: opacity 0.28s ease;
+
+    z-index: 5;
+    pointer-events: none;
+}
+
+.envelope.open .flap-closed {
+    opacity: 0;
+}
+
+.flap-closed::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+    background: linear-gradient(165deg, #c9ac88 0%, #b28f68 55%, #9b7a53 100%);
+    box-shadow: inset 0 -0.4em 0.7em rgba(96,64,30,0.2);
+}
+
+.flap-note {
+    position: absolute;
+    top: 14%;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    color: #fdfbf5;
+    font-size: 1.35em;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    text-shadow: 0 1px 3px rgba(80,50,20,0.6);
+    z-index: 1;
+}
+
+/* ۶) مهر موم طلایی */
+.env-seal {
+    position: absolute;
+    top: 78%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 6em;
+    height: 6em;
+    z-index: 6;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.envelope.open .env-seal {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.5);
+    pointer-events: none;
+}
+
+.wax {
+    position: absolute;
+    inset: 0;
+    border-radius: 47% 53% 50% 50% / 52% 48% 52% 48%;
+    background: radial-gradient(circle at 34% 28%, #f6dc8e 0%, #e5bd55 38%, #c8922b 68%, #a06f15 100%);
+    box-shadow:
+        inset 0 -4px 8px rgba(96,60,0,0.55),
+        inset 0 3px 6px rgba(255,241,190,0.65),
+        0 4px 12px rgba(0,0,0,0.4);
+}
+
+.wax::before {
+    content: "";
+    position: absolute;
+    inset: -4px;
+    border-radius: 52% 48% 55% 45% / 49% 55% 45% 51%;
+    background: linear-gradient(150deg, #d8ab48, #a97c1c);
+    z-index: -1;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+
+.wax-rings {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 1px 0 rgba(255,242,205,0.55));
+}
+
+
+.envelope-hint {
+    color: rgba(255,255,255,0.65);
+    font-size: 14px;
+    letter-spacing: 0.3px;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.envelope-hint.show {
+    opacity: 0.45;
+    animation: pulseHint 1.8s ease-in-out infinite;
+}
+
+.envelope-scene.opened .envelope-hint {
+    opacity: 0 !important;
+    animation: none;
+}
+
+@keyframes pulseHint {
+    0%, 100% { opacity: 0.45; }
+    50% { opacity: 1; }
+}
+
+
+/* ================================================================ */
+/* کارت نهایی: سایز ثابت (بزرگ) + حرکت فقط با transform             */
+/* (انیمیت left/top/width/height حذف شد — علت اصلی کندی بود)         */
+/* ================================================================ */
+.reveal-card {
+
+    position: fixed;
+
+    left: 0;
+    top: 0;
+
+    /* سایز توسط JS تنظیم می‌شود */
+
+    border-radius: 12px;
+    overflow: hidden;
+
+    box-shadow:
+        0 18px 45px rgba(0,0,0,0.6),
+        0 0 0 1px rgba(212,175,55,0.35);
+
+    opacity: 0;
+
+    transition:
+        transform 0.95s cubic-bezier(.19, 1, .22, 1),
+        opacity 0.35s ease;
+
+    will-change: transform, opacity;   /* 👈 GPU */
+
+    z-index: 52;
+    pointer-events: none;
+}
+
+.reveal-card.show {
+    opacity: 1;
+}
+
+.reveal-card.no-anim {
+    transition: none !important;
+}
+
+.reveal-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+
+/* محتوای اصلی */
+#mainContent {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.7s ease, visibility 0s linear 0.7s;
+}
+
+#mainContent.visible {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.7s ease;
+}
